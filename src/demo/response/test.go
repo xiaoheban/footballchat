@@ -12,6 +12,7 @@ func hanleHeaders(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, h)
 }
 func handleBody(w http.ResponseWriter, r *http.Request) {
+	//curl -id "user=wang hui&pwd=123" 127.0.0.1:8080/getBody
 	contentLen := r.ContentLength
 	body := make([]byte, contentLen)
 	r.Body.Read(body)
@@ -20,13 +21,25 @@ func handleBody(w http.ResponseWriter, r *http.Request) {
 }
 
 /**
-解析form表单数据
+处理form表单数据
 */
-func process(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	fmt.Println(r.Form)
-	fmt.Println(r.Body)
-	fmt.Fprintln(w, r.Form)
+func processForm(w http.ResponseWriter, r *http.Request) {
+	///1.解析Form字段
+	///2.解析PostForm字段
+	///3.解析MultipartForm字段
+	///4.FormValue函数
+	///5.PostFormValue函数
+	/* 	r.ParseForm()
+	   	fmt.Println(r.Form)
+	   	fmt.Println(r.Body)
+	   	fmt.Fprintln(w, r.Form) */
+}
+
+/**
+处理json请求体
+*/
+func processJsonRequest(w http.ResponseWriter, r *http.Request) {
+
 }
 func main() {
 	server := http.Server{
@@ -34,6 +47,7 @@ func main() {
 	}
 	http.HandleFunc("/getHeader/", hanleHeaders)
 	http.HandleFunc("/getBody/", handleBody)
-	http.HandleFunc("/process/", process)
+	http.HandleFunc("/process/", processForm)
+	http.HandleFunc("/processJson/", processJsonRequest)
 	server.ListenAndServe()
 }
