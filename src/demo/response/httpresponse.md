@@ -47,6 +47,16 @@
     (1)ParseForm()或者ParseMultipartForm()解析
     (2)访问Form、PostForm、MultipartForm字段
     ```
+    .html
+    <form action="http://127.0.0.1:8080/process?user=hui&jsj=89" method="POST"  enctype="application/x-www-form-urlencoded">
+      <input type="text" name="user" value="wang"/>
+      <input type="password" name="pwd"/>
+      <input type="submit"/>
+    </form>
+    .go文件
+    r.ParseForm()
+	  fmt.Fprintln(w, r.Form) 
+    //output:map[jsj:[89] pwd:[sss] user:[wang hui]] wang来自form表单 hui来自url拼接的参数
     ```
   + 
 
