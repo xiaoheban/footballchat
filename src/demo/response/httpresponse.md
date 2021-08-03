@@ -47,6 +47,7 @@
     (1)ParseForm()或者ParseMultipartForm()解析
     (2)访问Form、PostForm、MultipartForm字段
     ```
+    //场景1
     .html
     <form action="http://127.0.0.1:8080/process?user=hui&jsj=89" method="POST"  enctype="application/x-www-form-urlencoded">
       <input type="text" name="user" value="wang"/>
@@ -57,10 +58,75 @@
     r.ParseForm()
 	  fmt.Fprintln(w, r.Form) 
     //output:map[jsj:[89] pwd:[sss] user:[wang hui]] wang来自form表单 hui来自url拼接的参数
+    //如果是调用r.PostForm,则只会得到表单提交的参数 url中拼接的参数将无法获取
+    	r.ParseForm()
+	    fmt.Fprintln(w, r.PostForm)
+    //map[pwd:[dd] user:[wang]]
+    //另外可以使用快捷的函数 formValue(key),PostFormValue(key) 来获取对应key的值，这样获取的只能是第一个值，如果有多个键值对的话 比如上面例子url中和表单中同时提交了参数，则会取表单里面的第一个参数，这种情况不需要手动调用parse...方法 方法内部会自动调用
+	  fmt.Fprintln(w, r.FormValue("user")) //wang
+	  fmt.Fprintln(w, r.PostFormValue("user")) //wang
+
+    //parseMultipartForm 主要用在文件传输
+      <form action="http://127.0.0.1:8080/handleFile" method="POST"  enctype="multipart/form-data">
+        <label>文件名：</label>
+        <input type="text" name="file_name"/><br>
+        <label>选择文件：</label>
+        <input type="file" name="apk"/><br>
+        <input type="submit"/>
+      </form>
+      func handleFile(w http.ResponseWriter, r *http.Request) {
+	      fmt.Println("request here")
+	      r.ParseMultipartForm(2048)
+	      fmt.Fprintln(w, r.MultipartForm)//&{map[file_name:[ss]] map[apk:[0xc000040050]]
+      } //ss参数是文件名 apk参数是文件
+    }
+    //修改后的
+    func handleFile(w http.ResponseWriter, r *http.Request) {
+	    fmt.Println("request here")
+	    r.ParseMultipartForm(2048)
+	    //fmt.Fprintln(w, r.MultipartForm)//&{map[file_name:[ss]] map[apk:[0xc000040050]]}
+	    fmt.Println("fileParams", r.MultipartForm.File["apk"])
+	    fileHandler := r.MultipartForm.File["apk"][0]
+	    file, err := fileHandler.Open()
+	    if err == nil {
+		    contents, err := ioutil.ReadAll(file)
+		    if err == nil {
+			  fmt.Fprintln(w, string(contents))
+		    }
+	    } 
+    }
+    func handleFile(w http.ResponseWriter, r *http.Request) {
+	    fmt.Println("request here")
+	    //可以使用简化的formFile("apk")来简化操作，这样只会返回第一个文件的句柄
+	    file, _, err := r.FormFile("apk")
+	      if err == nil {
+		      contents, err := ioutil.ReadAll(file)
+		      if err == nil {
+			    fmt.Fprintln(w, string(contents))
+		    }
+	    }
+    }
     ```
   + 
 
-##### 二.请求和响应
+##### 二.处理请求体是json的请求
+  + 上面介绍的Form系列方法，对于请求主体是json的请求是没有办法处理的，因此需要自己解析
+    go对于json有两种方式可以处理：
+    ```
+    // 方式一：json.Unmarshal()
+    b, err := ioutil.ReadAll(response.Body)
+      if err != nil {
+        log.Println("err=>", err)
+    } 
+    data = []byte(string(b))
+    err = json.Unmarshal(data, &user)
+    适用场景：如果要处理的JSON数据已经存在内存中，使用json.Unmarshal
+
+    // 方式二：json.NewDecoder()
+    err := json.NewDecoder(response.Body).Decode(&user)
+    //适用场景：如果数据来自io.Reader流，或者需要从数据流中解码多个值，使用json.Decoder
+    //   http请求的读取，也属于流的读取 
+    ```
 ##### 三.请求和响应
 ##### 四.请求和响应
 ##### 五.请求和响应

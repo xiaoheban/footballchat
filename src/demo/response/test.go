@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -48,15 +50,42 @@ form表单上传文件
 */
 func handleFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("request here")
-	r.ParseMultipartForm(2048)
-	fmt.Fprintln(w, r.MultipartForm)
+	//r.ParseMultipartForm(2048)
+	//fmt.Fprintln(w, r.MultipartForm)//&{map[file_name:[ss]] map[apk:[0xc000040050]]}
+	/* 	fmt.Println("fileParams", r.MultipartForm.File["apk"])
+	   	fileHandler := r.MultipartForm.File["apk"][0]
+	   	file, err := fileHandler.Open()
+	   	if err == nil {
+	   		contents, err := ioutil.ReadAll(file)
+	   		if err == nil {
+	   			fmt.Fprintln(w, string(contents))
+	   		}
+	   	} */
+	//	//可以使用简化的formFile("apk")来简化操作，这样只会返回第一个文件的句柄
+	file, _, err := r.FormFile("apk")
+	if err == nil {
+		contents, err := ioutil.ReadAll(file)
+		if err == nil {
+			fmt.Fprintln(w, string(contents))
+		}
+	}
 }
 
 /**
 处理json请求体
 */
-func processJsonRequest(w http.ResponseWriter, r *http.Request) {
+type LoginInfo struct {
+	Id       string
+	Account  string
+	Password string
+}
 
+func processJsonRequest(w http.ResponseWriter, r *http.Request) {
+	var loginInfo LoginInfo
+	err := json.NewDecoder(r.Body).Decode(&loginInfo)
+	if err != nil {
+		fmt.Fprintln(w, loginInfo)
+	}
 }
 func main() {
 	server := http.Server{
