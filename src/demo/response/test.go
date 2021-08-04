@@ -87,6 +87,61 @@ func processJsonRequest(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, loginInfo)
 	}
 }
+func handleWrite(w http.ResponseWriter, r *http.Request) {
+	strResponse := `<html><header><header><body><div>你好</div></body></html>`
+	w.Write([]byte(strResponse))
+}
+func handleWriteHeader(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(501)
+	fmt.Fprintln(w, "api not implemented!!")
+}
+func handleHeader(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Location", "https://baidu.com")
+	w.WriteHeader(302)
+}
+
+type Post struct {
+	Author  string   //作者
+	Threads []string //帖子
+}
+
+func handleResponseJson(w http.ResponseWriter, r *http.Request) {
+	post := Post{
+		Author:  "jim",
+		Threads: []string{"曼城8球大胜曼联", "富登上演助攻帽子戏法", "阿奎罗前来观战", "新人斯特林表现抢眼"},
+	}
+	respData, err := json.Marshal(post)
+	fmt.Println(string(respData))
+	if err == nil {
+		//	w.Header().Set("Content-Type", "applicaiton/json") //不写不会自动识别
+		w.Write(respData)
+	}
+}
+func handleSetCookie(w http.ResponseWriter, r *http.Request) {
+	c1 := http.Cookie{
+		Name:  "c1",
+		Value: "12",
+	}
+	c2 := http.Cookie{
+		Name:     "c2",
+		Value:    "34",
+		HttpOnly: true,
+	}
+	c3 := http.Cookie{
+		Name:     "c3",
+		Value:    "565",
+		HttpOnly: true,
+	}
+	w.Header().Set("Set-Cookie", c1.String())
+	w.Header().Add("Set-Cookie", c2.String())
+	http.SetCookie(w, &c3)
+}
+func getCookie(w http.ResponseWriter, r *http.Request) {
+	//cookie := r.Header["Cookie"] //返回切片
+	//	c1, _ := r.Cookie("c1") //返回单个cookie
+	cookies := r.Cookies() //返回切片
+	fmt.Fprintln(w, cookies)
+}
 func main() {
 	server := http.Server{
 		Addr: "127.0.0.1:8080",
@@ -96,5 +151,12 @@ func main() {
 	http.HandleFunc("/process", processForm)
 	http.HandleFunc("/handleFile", handleFile)
 	http.HandleFunc("/processJson", processJsonRequest)
+	http.HandleFunc("/handleWrite", handleWrite)
+	http.HandleFunc("/handleWriteHeader", handleWriteHeader)
+	http.HandleFunc("/handleHeader", handleHeader)
+	http.HandleFunc("/handleResponseJson", handleResponseJson)
+	http.HandleFunc("/handleSetCookie", handleSetCookie)
+	http.HandleFunc("/getCookie", getCookie)
+
 	server.ListenAndServe()
 }

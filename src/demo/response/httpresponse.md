@@ -127,6 +127,79 @@
     //适用场景：如果数据来自io.Reader流，或者需要从数据流中解码多个值，使用json.Decoder
     //   http请求的读取，也属于流的读取 
     ```
-##### 三.请求和响应
-##### 四.请求和响应
+##### 三.ResponseWriter
+  ResponseWriter是一个非导出结构，使用的时候本质上是一个指针
+  + Write:写入响应主体
+  + WriteHeader:写入响应码，该方法调用以后，不能在修改header,body可以继续写入
+  + Header:修改/写入响应header
+  1. Write
+     将响应体写入body，如果没有设置首部content-type,将根据写入的数组的前512个字节，自动确定类型，参数是byte切片
+     ```
+     func handleWrite(w http.ResponseWriter, r *http.Request) {
+	      strResponse := `<html><header><header><body><div>你好</div></body></html>`
+	      w.Write([]byte(strResponse))
+     }
+     ```
+  2. WriteHeader
+     ```
+     func handleWriteHeader(w http.ResponseWriter, r *http.Request) {
+	      w.WriteHeader(501)
+	      fmt.Fprintln(w, "api not implemented!!")//实际上就是调用了Write方法
+     }
+     ```
+  3. Header
+    ```
+    func handleHeader(w http.ResponseWriter, r *http.Request) {
+    	w.Header().Set("Location", "https://baidu.com")
+	    w.WriteHeader(302)//重定向
+    }
+    ```
+  4. 返回json数据
+    ```
+    type Post struct {
+	    Author  string   //作者
+	    Threads []string //帖子
+    }
+    func handleResponseJson(w http.ResponseWriter, r *http.Request) {
+	    post := Post{
+		  Author:  "jim",
+		  Threads: []string{"曼城8球大胜曼联", "富登上演助攻帽子戏法", "阿奎罗前来观战", "新人斯特林表现抢眼"},
+	    }
+	    respData, err := json.Marshal(post)
+	    fmt.Println(string(respData))
+	    if err == nil {
+		  //	w.Header().Set("Content-Type", "applicaiton/json") //不写不会自动识别
+		  w.Write(respData)
+	  }
+}
+    ```
+##### 四.Cookie
++ cookie分为会话cookie和持久化cookie:
+  ```
+  type Cookie struct {
+	  Name  string
+	  Value string
+
+	  Path       string    // optional
+	  Domain     string    // optional
+	  Expires    time.Time // optional
+	  RawExpires string    // for reading cookies only
+
+	  // MaxAge=0 means no 'Max-Age' attribute specified.
+	  // MaxAge<0 means delete cookie now, equivalently 'Max-Age: 0'
+	  // MaxAge>0 means Max-Age attribute present and given in seconds
+	  MaxAge   int
+	  Secure   bool
+	  HttpOnly bool
+	  SameSite SameSite
+	  Raw      string
+	  Unparsed []string // Raw text of unparsed attribute-value pairs
+  }
+  func getCookie(w http.ResponseWriter, r *http.Request) {
+	  //cookie := r.Header["Cookie"] //返回切片
+	  //	c1, _ := r.Cookie("c1") //返回单个cookie
+	  cookies := r.Cookies() //返回切片
+	  fmt.Fprintln(w, cookies)
+  }
+  ```
 ##### 五.请求和响应
