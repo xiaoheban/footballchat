@@ -18,11 +18,15 @@ func process(w http.ResponseWriter, r *http.Request) {
 	   	rand.Seed(time.Now().Unix())
 	   	t.Execute(w, rand.Intn(10) > 5) */
 	//迭代动作
-	t, _ := template.ParseFiles("templ2.html")
-	arrs := []string{"jim", "tom", "bob", "steven"}
-	t.Execute(w, arrs)
+	/* 	t, _ := template.ParseFiles("templ2.html")
+	   	arrs := []string{"jim", "tom", "bob", "steven"}
+	   	t.Execute(w, arrs) */
 	//设置工作
+	/* 	t, _ := template.ParseFiles("templ3.html")
+	   	t.Execute(w, "hello") */
 	//包含工作
+	t, _ := template.ParseFiles("templ4.html", "templ5.html")
+	t.Execute(w, "hello go")
 }
 
 func main() {
