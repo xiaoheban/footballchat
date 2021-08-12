@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
+	"time"
 )
 
 /**
@@ -28,6 +30,18 @@ func process(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("templ4.html", "templ5.html")
 	t.Execute(w, "hello go")
 }
+func formatDate(date time.Time) (fDate string) {
+	df := "2021-10-01"
+	fDate = date.Format(df)
+	fmt.Println(fDate)
+	return
+}
+func process1(w http.ResponseWriter, r *http.Request) {
+	fuctions := template.FuncMap{"fdate": formatDate}
+	t := template.New("templ6.html").Funcs(fuctions)
+	t1, _ := t.ParseFiles("templ6.html")
+	t1.Execute(w, time.Now()) //格式化日期
+}
 
 func main() {
 	server := http.Server{
@@ -35,5 +49,6 @@ func main() {
 	}
 	http.HandleFunc("/sample", sampleTemplate)
 	http.HandleFunc("/process", process)
+	http.HandleFunc("/process1", process1)
 	server.ListenAndServe()
 }
