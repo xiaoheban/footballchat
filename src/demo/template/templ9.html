@@ -1,3 +1,4 @@
+{{ define "layout" }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +8,11 @@
   <title>Document</title>
 </head>
 <body>
-  the date is {{.| fdate }}<br>
-  the date is {{ fdate .}}
+  定义默认模板
+  {{ block "content" . }}
+  <h1  style="color: yellow;">默认是黄色的content</h1>
+  {{ end }}
+  
 </body>
 </html>
+{{ end }}

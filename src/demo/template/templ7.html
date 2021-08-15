@@ -1,3 +1,4 @@
+{{ define "layout"}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +8,12 @@
   <title>Document</title>
 </head>
 <body>
-  the date is {{.| fdate }}<br>
-  the date is {{ fdate .}}
+   这是模板嵌套例子，下面是嵌套的模板内容
+   {{ template "content"}}
 </body>
 </html>
+{{ end }}
+
+{{ define "content" }}
+<h1 style="color:#f00;">这是嵌套的内容：来自content</h1>
+{{ end }}
