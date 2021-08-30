@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 )
 
 type Post struct {
@@ -29,6 +30,7 @@ func write2JsonFile() {
 			{13, "东坡", "太白真棒+2"},
 		},
 	}
+	//方法1
 	//	bytes, err := json.Marshal(&post)
 	bytes, err := json.MarshalIndent(&post, "", "\t\t")
 	if err == nil {
@@ -37,11 +39,43 @@ func write2JsonFile() {
 	} else {
 		fmt.Println("err", err)
 	}
+	// 方法2
+	file, _ := os.Create("test2.json")
+	defer file.Close()
+	jsonEncoder := json.NewEncoder(file)
+	if jsonEncoder != nil {
+		jsonEncoder.Encode(&post)
+	}
 }
 func readFromJsonFile() {
-
+	//方法一，先把数据读取到内存，再转成json
+	bytes, err := ioutil.ReadFile("test.json")
+	if err != nil {
+		panic(err)
+	}
+	var post1 Post
+	err = json.Unmarshal(bytes, &post1)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("get post from file use Unmarshal", post1)
+	//方法2,直接从文件读j'son
+	file, err := os.Open("test2.json")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	decorder := json.NewDecoder(file)
+	if decorder != nil {
+		var post2 Post
+		err := decorder.Decode(&post2)
+		if err == nil {
+			fmt.Println("get post from file use json.NewDecoder", post2)
+		}
+	}
 }
 
 func main() {
 	write2JsonFile()
+	readFromJsonFile()
 }
