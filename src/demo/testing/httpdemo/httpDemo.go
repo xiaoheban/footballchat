@@ -2,6 +2,7 @@ package httpdemo
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -23,6 +24,7 @@ func handleAddUser(w http.ResponseWriter, r *http.Request) {
 	var user User
 	err = json.Unmarshal(bodyBytes, &user)
 	if err != nil {
+		fmt.Println("parser json err ", err)
 		w.WriteHeader(601)
 		return
 	}
@@ -34,4 +36,7 @@ func handleAddUser(w http.ResponseWriter, r *http.Request) {
 获取用户信息
 */
 func handleGetUser(w http.ResponseWriter, r *http.Request) {
+	strUser := `{"id":"1","name":"json"}`
+	w.WriteHeader(200)
+	w.Write([]byte(strUser))
 }

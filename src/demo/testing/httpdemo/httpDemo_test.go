@@ -14,12 +14,12 @@ func TestHandleAddUser(t *testing.T) {
 	//创建recorder
 	writer := httptest.NewRecorder()
 	//writer.Body = nil
-	userJson := strings.NewReader(`"id":"1","name":"json"`)
+	userJson := strings.NewReader(`{"id":"1","name":"json"}`)
 	request, _ := http.NewRequest("POST", "/addUser/", userJson)
 	mux.ServeHTTP(writer, request)
 	//处理响应码
 	if writer.Code != 200 {
-		t.Errorf("Response Code is %v", writer.Code)
+		t.Errorf("Response Code is %v %v", writer.Code, writer.Body.String())
 	}
 }
 
@@ -27,7 +27,7 @@ func TestHandleGetUser(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/getUser/", handleGetUser)
 	writer := httptest.NewRecorder()
-	request, _ := http.NewRequest("GET", "/getUser?userId=1", nil)
+	request, _ := http.NewRequest("GET", "/getUser/", nil)
 	mux.ServeHTTP(writer, request)
 	if writer.Code != 200 {
 		t.Fatalf("Response Code is %v", writer.Code)
