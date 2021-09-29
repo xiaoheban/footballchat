@@ -1,3 +1,7 @@
-/***
-登录和验证相关
-*/
+package footballchat
+
+import "net/http"
+
+func login(w http.ResponseWriter, r *http.Request) {
+
+}

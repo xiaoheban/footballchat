@@ -8,3 +8,7 @@ import "net/http"
 func index(w http.ResponseWriter, r *http.Request) {
 
 }
+
+func errors(w http.ResponseWriter, r *http.Request) {
+
+}
