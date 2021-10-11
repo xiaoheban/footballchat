@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	fmt.Println("this is foot ball ")
+	fmt.Println("this is foot ball chat")
 	mux := http.NewServeMux()
 
 	//设置路由
